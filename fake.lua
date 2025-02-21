@@ -1,107 +1,81 @@
--- Create the GUI for the Donation and Admin Chat functionality
+-- Create the GUI for the donation system
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 400, 0, 500)
+frame.Size = UDim2.new(0, 400, 0, 300)
 frame.Position = UDim2.new(0, 10, 0, 10)
 frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 frame.Parent = screenGui
 
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 50, 0, 50)
-closeButton.Position = UDim2.new(0, 350, 0, 10)
-closeButton.Text = "X"
-closeButton.Parent = frame
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0, 400, 0, 50)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.Text = "Fake Robux Donation System"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Parent = frame
 
--- Function to close GUI
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
+-- Dropdown menu to select the player to donate to
+local playerList = Instance.new("TextButton")
+playerList.Size = UDim2.new(0, 380, 0, 50)
+playerList.Position = UDim2.new(0, 10, 0, 60)
+playerList.Text = "Select Player to Donate"
+playerList.TextColor3 = Color3.fromRGB(255, 255, 255)
+playerList.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+playerList.Parent = frame
 
--- Donate GUI Elements
 local donateButton = Instance.new("TextButton")
-donateButton.Size = UDim2.new(0, 150, 0, 50)
-donateButton.Position = UDim2.new(0, 10, 0, 100)
-donateButton.Text = "Donate"
+donateButton.Size = UDim2.new(0, 380, 0, 50)
+donateButton.Position = UDim2.new(0, 10, 0, 120)
+donateButton.Text = "Start Donation"
+donateButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+donateButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 donateButton.Parent = frame
 
-local userTextBox = Instance.new("TextBox")
-userTextBox.Size = UDim2.new(0, 280, 0, 50)
-userTextBox.Position = UDim2.new(0, 10, 0, 160)
-userTextBox.PlaceholderText = "Enter player name..."
-userTextBox.Parent = frame
+local stopButton = Instance.new("TextButton")
+stopButton.Size = UDim2.new(0, 380, 0, 50)
+stopButton.Position = UDim2.new(0, 10, 0, 180)
+stopButton.Text = "Stop Donation"
+stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+stopButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+stopButton.Parent = frame
 
-local amountTextBox = Instance.new("TextBox")
-amountTextBox.Size = UDim2.new(0, 280, 0, 50)
-amountTextBox.Position = UDim2.new(0, 10, 0, 220)
-amountTextBox.PlaceholderText = "Enter donation amount..."
-amountTextBox.Parent = frame
+local donationActive = false
+local currentPlayer = nil
 
-local messageLabel = Instance.new("TextLabel")
-messageLabel.Size = UDim2.new(0, 280, 0, 50)
-messageLabel.Position = UDim2.new(0, 10, 0, 280)
-messageLabel.Text = ""
-messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-messageLabel.BackgroundTransparency = 1
-messageLabel.Parent = frame
-
--- Fake Admin Chat Functionality
-local fakeChatButton = Instance.new("TextButton")
-fakeChatButton.Size = UDim2.new(0, 150, 0, 50)
-fakeChatButton.Position = UDim2.new(0, 10, 0, 350)
-fakeChatButton.Text = "Fake Chat"
-fakeChatButton.Parent = frame
-
--- Variable for Ultimate Donation
-local isDonating = false
-local donationConnection
-
--- Function for Ultimate Donation (continuous until stopped)
-local function startUltimateDonation(playerName, amount)
-    isDonating = true
-    donationConnection = game:GetService("RunService").Heartbeat:Connect(function()
-        if isDonating then
-            local player = game.Players:FindFirstChild(playerName)
-            if player then
-                -- Simulate a donation (Modify this to work with your game)
-                -- Example: Fire the donation event for a specific player
-                -- FireServer would be part of the game’s donation system
-                -- (replace with actual donation code)
-                -- game.ReplicatedStorage.DonateEvent:FireServer(player, amount)
-                messageLabel.Text = "Donating " .. amount .. " to " .. playerName
-            end
-        else
-            messageLabel.Text = "Donation stopped."
-            donationConnection:Disconnect()
-        end
-    end)
-end
-
--- Function to stop the ultimate donation
-local function stopUltimateDonation()
-    isDonating = false
-end
-
--- Donate Button Action
+-- Function to start the donation
 donateButton.MouseButton1Click:Connect(function()
-    local playerName = userTextBox.Text
-    local donationAmount = tonumber(amountTextBox.Text)
-    
-    if playerName and donationAmount then
-        messageLabel.Text = "Donating " .. donationAmount .. " to " .. playerName
-        -- Start the donation process
-        startUltimateDonation(playerName, donationAmount)
+    if currentPlayer then
+        donationActive = true
+        donateButton.Text = "Donating..."
+        while donationActive do
+            -- Simulate donating 100 fake Robux
+            game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(currentPlayer.Name .. " donated 100 fake Robux!", "All")
+            wait(2) -- Wait for 2 seconds before donating again
+        end
     else
-        messageLabel.Text = "Invalid player or amount!"
+        print("Select a player first!")
     end
 end)
 
--- Fake Chat Button Action (FE - Fake system message visible to all players)
-fakeChatButton.MouseButton1Click:Connect(function()
-    local fakeMessage = "Admin Message: This is a fake chat!"
-    -- Broadcast fake chat message
-    game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(fakeMessage, "All")
+-- Function to stop the donation
+stopButton.MouseButton1Click:Connect(function()
+    donationActive = false
+    donateButton.Text = "Start Donation"
+end)
+
+-- Function to select a player for donation
+playerList.MouseButton1Click:Connect(function()
+    local players = game.Players:GetPlayers()
+    -- For simplicity, select the first player in the game as the recipient
+    -- You can expand this part to allow players to choose from a list
+    if #players > 1 then
+        currentPlayer = players[2] -- Select the second player in the game as the donation recipient
+        playerList.Text = "Selected: " .. currentPlayer.Name
+    else
+        playerList.Text = "No other players in the game"
+    end
 end)
 
 -- Make GUI draggable
